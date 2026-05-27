@@ -1,7 +1,8 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
-import { Clock, Eye, Tag, ArrowRight, BookOpen } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Clock, Eye, ArrowRight, BookOpen } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 
 // ── Articles catalogue ────────────────────────────────────────────────────────
@@ -129,7 +130,7 @@ export default function BlogPage() {
 
         {/* Featured article */}
         {featured && category === 'Все' && (
-          <div className="mb-8 bg-[#0D1B2E] border border-[#2979FF]/20 rounded-2xl overflow-hidden hover:border-[#2979FF]/40 transition-all group cursor-pointer">
+          <Link href={`/blog/${featured.slug}`} className="block mb-8 bg-[#0D1B2E] border border-[#2979FF]/20 rounded-2xl overflow-hidden hover:border-[#2979FF]/40 transition-all group">
             <div className="sm:flex">
               <div className="sm:w-2/5 h-48 sm:h-auto overflow-hidden">
                 <img src={featured.image} alt={featured.title}
@@ -156,7 +157,7 @@ export default function BlogPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         )}
 
         {/* Category filter */}
@@ -177,8 +178,7 @@ export default function BlogPage() {
         {/* Articles grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {filtered.filter(a => !a.featured || category !== 'Все').map(article => (
-            <article key={article.id}
-              className="bg-[#0D1B2E] border border-[#1A2744] rounded-2xl overflow-hidden hover:border-[#2979FF]/30 transition-all group cursor-pointer">
+            <Link key={article.id} href={`/blog/${article.slug}`} className="block bg-[#0D1B2E] border border-[#1A2744] rounded-2xl overflow-hidden hover:border-[#2979FF]/30 transition-all group">
               <div className="h-40 overflow-hidden">
                 <img src={article.image} alt={article.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -202,10 +202,12 @@ export default function BlogPage() {
                     )}
                     <span className="flex items-center gap-0.5"><Clock size={10}/> {article.readMin} мин</span>
                   </div>
-                  <span>{formatDate(article.date)}</span>
+                  <div className="flex items-center gap-1 text-[#2979FF] font-medium">
+                    Читать <ArrowRight size={10}/>
+                  </div>
                 </div>
               </div>
-            </article>
+            </Link>
           ))}
         </div>
 
