@@ -72,18 +72,13 @@ export default function WalletPage() {
       const data = await res.json()
       setWallet(data)
     } catch {
-      // Fallback to mock for dev
+      // Empty state fallback — no fake data
       setWallet({
-        balance: 35100,
-        pending_hold: 12500,
-        total_earned: 224900,
-        total_paid: 187400,
-        payouts: [
-          { id: '1', amount: 15000, method: 'card', status: 'paid', created_at: '2024-01-20', paid_at: '2024-01-21' },
-          { id: '2', amount: 28000, method: 'usdt', status: 'paid', created_at: '2024-01-10', paid_at: '2024-01-11' },
-          { id: '3', amount: 7500, method: 'card', status: 'processing', created_at: '2024-01-25', paid_at: null },
-          { id: '4', amount: 50000, method: 'bank', status: 'paid', created_at: '2023-12-20', paid_at: '2023-12-21' },
-        ],
+        balance: 0,
+        pending_hold: 0,
+        total_earned: 0,
+        total_paid: 0,
+        payouts: [],
         dev_mode: true,
       })
     } finally {

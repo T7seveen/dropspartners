@@ -36,27 +36,27 @@ export default function ProfilePage() {
   const [tgUnlinking, setTgUnlinking] = useState(false)
   const [form, setForm] = useState({ full_name: '', telegram: '' })
 
-  // Fallback mock for dev mode
-  const mockProfile: Profile = {
-    id: 'mock', full_name: 'Иван Партнёров', username: 'ivan_p',
+  // Empty-state profile for dev/demo mode (no fake data)
+  const emptyProfile: Profile = {
+    id: 'demo', full_name: null, username: null,
     telegram: null, telegram_chat_id: null,
-    ref_code: 'dp_abc12345', role: 'partner',
-    balance: 35100, total_earned: 284000, total_paid: 187400,
-    created_at: '2024-01-05T00:00:00Z',
+    ref_code: 'dp_demo0000', role: 'partner',
+    balance: 0, total_earned: 0, total_paid: 0,
+    created_at: new Date().toISOString(),
   }
 
   useEffect(() => {
     fetch('/api/profile')
       .then(r => r.json())
       .then(d => {
-        const p = d.profile ?? mockProfile
+        const p = d.profile ?? emptyProfile
         setProfile(p)
         setEmail(d.email ?? '')
         setForm({ full_name: p.full_name ?? '', telegram: p.telegram ?? '' })
       })
       .catch(() => {
-        setProfile(mockProfile)
-        setForm({ full_name: mockProfile.full_name ?? '', telegram: '' })
+        setProfile(emptyProfile)
+        setForm({ full_name: '', telegram: '' })
       })
       .finally(() => setLoading(false))
   }, [])
