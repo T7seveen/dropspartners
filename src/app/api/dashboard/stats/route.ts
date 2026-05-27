@@ -1,23 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getUserFromRequest, isSupabaseConfigured, createServiceClient } from '@/lib/supabase/service'
 
+// Empty state — shown when Supabase is not yet configured (no fake money!)
 const MOCK = {
-  clicks: 1247, conversions: 38, cr: 3.05,
-  earnings: 47600, pending: 12500, balance: 35100,
-  clicksTrend: 12, convTrend: 8, earnTrend: 24,
+  clicks: 0, conversions: 0, cr: 0,
+  earnings: 0, pending: 0, balance: 0,
+  clicksTrend: 0, convTrend: 0, earnTrend: 0,
   chartData: [
-    { day: 'Пн', clicks: 180, conversions: 5, earnings: 7500 },
-    { day: 'Вт', clicks: 210, conversions: 7, earnings: 10500 },
-    { day: 'Ср', clicks: 175, conversions: 4, earnings: 6000 },
-    { day: 'Чт', clicks: 230, conversions: 9, earnings: 13500 },
-    { day: 'Пт', clicks: 198, conversions: 6, earnings: 9000 },
-    { day: 'Сб', clicks: 154, conversions: 4, earnings: 6000 },
-    { day: 'Вс', clicks: 100, conversions: 3, earnings: 4100 },
+    { day: 'Пн', clicks: 0, conversions: 0, earnings: 0 },
+    { day: 'Вт', clicks: 0, conversions: 0, earnings: 0 },
+    { day: 'Ср', clicks: 0, conversions: 0, earnings: 0 },
+    { day: 'Чт', clicks: 0, conversions: 0, earnings: 0 },
+    { day: 'Пт', clicks: 0, conversions: 0, earnings: 0 },
+    { day: 'Сб', clicks: 0, conversions: 0, earnings: 0 },
+    { day: 'Вс', clicks: 0, conversions: 0, earnings: 0 },
   ],
   recentEvents: [
-    { id: '1', type: 'conversion', amount: 15000, status: 'pending', offer: 'Drops — Система', created_at: new Date(Date.now() - 2 * 3600 * 1000).toISOString() },
-    { id: '2', type: 'conversion', amount: 3000, status: 'approved', offer: 'Drops — Лендинг', created_at: new Date(Date.now() - 5 * 3600 * 1000).toISOString() },
-    { id: '3', type: 'conversion', amount: 15000, status: 'paid', offer: 'Drops — Система', created_at: new Date(Date.now() - 24 * 3600 * 1000).toISOString() },
   ],
 }
 
