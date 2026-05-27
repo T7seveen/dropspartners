@@ -1,14 +1,15 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
-import { ArrowRight, CheckCircle, AlertCircle } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { ArrowRight, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { createClient } from '@/lib/supabase/client'
 
 export default function RegisterPage() {
+  const router = useRouter()
   const [form, setForm] = useState({ name: '', email: '', password: '', ref: '' })
   const [loading, setLoading] = useState(false)
-  const [step, setStep] = useState<'form' | 'done'>('form')
   const [error, setError] = useState('')
 
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -25,70 +26,44 @@ export default function RegisterPage() {
 
     setLoading(true)
     try {
-      const supabase = createClient()
-
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email: form.email,
-        password: form.password,
-        options: {
-          data: {
-            full_name: form.name,
-            ref_code: form.ref || undefined,
-          },
-        },
+      // Server-side rate-limited register (max 3 attempts / 5 min per IP)
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: form.email,
+          password: form.password,
+          full_name: form.name,
+          ref_code: form.ref || undefined,
+        }),
       })
+      const data = await res.json()
 
-      if (signUpError) {
-        if (signUpError.message.includes('already registered')) {
-          setError('Этот email уже зарегистрирован')
-        } else if (signUpError.message.includes('Password')) {
-          setError('Пароль слишком слабый. Используйте минимум 8 символов.')
-        } else {
-          setError(signUpError.message)
-        }
+      if (!res.ok) {
+        setError(data.error ?? 'Ошибка регистрации')
         return
       }
 
-      // If referral code provided, link in the API
-      if (form.ref && data.user) {
-        await fetch('/api/auth/link-referrer', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_id: data.user.id, ref_code: form.ref }),
-        }).catch(() => {}) // fire-and-forget
+      if (data.dev) {
+        // Dev/demo mode — go straight to onboarding
+        router.push('/onboarding')
+        router.refresh()
+        return
       }
 
-      setStep('done')
+      // Sync session & redirect to onboarding wizard
+      const supabase = createClient()
+      await supabase.auth.setSession({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+      })
+      router.push('/onboarding')
+      router.refresh()
     } catch {
       setError('Ошибка соединения. Попробуйте позже.')
     } finally {
       setLoading(false)
     }
-  }
-
-  if (step === 'done') {
-    return (
-      <div className="min-h-screen bg-[#0A0A0F] flex items-center justify-center px-4">
-        <div className="text-center max-w-sm">
-          <div className="w-16 h-16 rounded-full bg-green-950/40 border border-green-500/30 flex items-center justify-center mx-auto mb-4">
-            <CheckCircle size={32} className="text-green-400"/>
-          </div>
-          <h2 className="text-xl font-bold text-[#F0F4FF] mb-2">Аккаунт создан!</h2>
-          <p className="text-[#8FA8C8] text-sm mb-2">
-            Мы отправили письмо на <span className="text-[#F0F4FF] font-medium">{form.email}</span>
-          </p>
-          <p className="text-[#8FA8C8] text-sm mb-6">
-            Перейдите по ссылке в письме для подтверждения, затем войдите в аккаунт.
-          </p>
-          <Link
-            href="/auth/login"
-            className="inline-flex items-center gap-2 bg-[#2979FF] hover:bg-[#1565C0] text-white font-semibold px-6 py-2.5 rounded-xl transition-colors"
-          >
-            Войти <ArrowRight size={16}/>
-          </Link>
-        </div>
-      </div>
-    )
   }
 
   return (

@@ -32,8 +32,8 @@ export async function PATCH(req: NextRequest) {
   const supabase = createServiceClient()
   const body = await req.json()
 
-  // Whitelist updatable fields
-  const allowed = ['full_name', 'username', 'telegram', 'avatar_url']
+  // Whitelist updatable fields (include onboarding + traffic_source for wizard)
+  const allowed = ['full_name', 'username', 'telegram', 'avatar_url', 'onboarding_done', 'traffic_source']
   const updates: Record<string, unknown> = {}
   for (const key of allowed) {
     if (key in body) updates[key] = body[key]

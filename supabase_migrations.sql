@@ -9,7 +9,8 @@
 alter table profiles
   add column if not exists telegram_chat_id text,
   add column if not exists onboarding_done boolean default false,
-  add column if not exists plan text default 'free' check (plan in ('free','pro','team'));
+  add column if not exists plan text default 'free' check (plan in ('free','pro','team')),
+  add column if not exists traffic_source text;
 
 -- offers: gambling/adult validation helper column
 alter table offers

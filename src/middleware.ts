@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const PUBLIC_PATHS = ['/', '/auth', '/advertiser', '/api/track', '/ref']
+const PUBLIC_PATHS = ['/', '/auth', '/advertiser', '/api/track', '/ref', '/onboarding']
 const ADMIN_PATHS = ['/admin']
-const PARTNER_PATHS = ['/dashboard']
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -44,6 +43,22 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl)
     }
 
+    // ── Onboarding check (partner dashboard only) ──────────────────────────
+    const isDashboard = pathname.startsWith('/dashboard')
+    if (isDashboard) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('onboarding_done, role')
+        .eq('id', user.id)
+        .single()
+
+      // Redirect new partners to the onboarding wizard
+      if (profile && !profile.onboarding_done && profile.role === 'partner') {
+        return NextResponse.redirect(new URL('/onboarding', request.url))
+      }
+    }
+
+    // ── Admin role guard ───────────────────────────────────────────────────
     const isAdminPath = ADMIN_PATHS.some(p => pathname.startsWith(p))
     if (isAdminPath) {
       const { data: profile } = await supabase

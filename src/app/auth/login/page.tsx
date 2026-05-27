@@ -20,17 +20,34 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      const supabase = createClient()
-      const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
+      // Server-side rate-limited login (max 5 attempts / 5 min per IP)
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+      const data = await res.json()
 
-      if (authError) {
-        if (authError.message.includes('Invalid login credentials')) {
-          setError('Неверный email или пароль')
-        } else if (authError.message.includes('Email not confirmed')) {
-          setError('Подтвердите email перед входом')
-        } else {
-          setError(authError.message)
-        }
+      if (!res.ok) {
+        setError(data.error ?? 'Ошибка входа')
+        return
+      }
+
+      if (data.dev) {
+        // Dev/demo mode — Supabase not configured
+        router.push('/dashboard')
+        router.refresh()
+        return
+      }
+
+      // Sync session to Supabase client (sets cookies)
+      const supabase = createClient()
+      const { error: sessionErr } = await supabase.auth.setSession({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+      })
+      if (sessionErr) {
+        setError('Не удалось установить сессию. Попробуйте ещё раз.')
         return
       }
 
