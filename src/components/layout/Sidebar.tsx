@@ -28,8 +28,15 @@ const adminNav = [
   { href: '/admin/analytics', label: 'Аналитика', icon: BarChart3 },
 ]
 
+const advertiserNav = [
+  { href: '/advertiser/dashboard', label: 'Дашборд', icon: LayoutDashboard },
+  { href: '/advertiser/offers', label: 'Мои офферы', icon: Package },
+  { href: '/advertiser/leads', label: 'Лиды', icon: Zap },
+  { href: '/dashboard/profile', label: 'Профиль', icon: User },
+]
+
 interface SidebarProps {
-  role?: 'partner' | 'admin'
+  role?: 'partner' | 'admin' | 'advertiser'
   onClose?: () => void
 }
 
@@ -45,7 +52,7 @@ export function Sidebar({ role = 'partner', onClose }: SidebarProps) {
     router.push('/auth/login')
     router.refresh()
   }
-  const nav = role === 'admin' ? adminNav : partnerNav
+  const nav = role === 'admin' ? adminNav : role === 'advertiser' ? advertiserNav : partnerNav
 
   return (
     <aside className="w-[180px] h-full flex flex-col bg-[#0D1B2E] border-r border-[#1A2744]">
@@ -70,6 +77,13 @@ export function Sidebar({ role = 'partner', onClose }: SidebarProps) {
           <div className="px-3 py-1.5 mb-2">
             <span className="text-[10px] font-semibold text-[#8FA8C8] uppercase tracking-widest flex items-center gap-1.5">
               <Shield size={10} /> Админ-панель
+            </span>
+          </div>
+        )}
+        {role === 'advertiser' && (
+          <div className="px-3 py-1.5 mb-2">
+            <span className="text-[10px] font-semibold text-[#8FA8C8] uppercase tracking-widest flex items-center gap-1.5">
+              <Zap size={10} /> Рекламодатель
             </span>
           </div>
         )}

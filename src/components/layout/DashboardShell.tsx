@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 interface DashboardShellProps {
   children: React.ReactNode
   title: string
-  role?: 'partner' | 'admin'
+  role?: 'partner' | 'admin' | 'advertiser'
   balance?: number
 }
 
