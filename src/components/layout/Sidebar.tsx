@@ -29,6 +29,7 @@ const adminNav = [
   { href: '/admin/payouts', label: 'Выплаты', icon: Wallet },
   { href: '/admin/blog', label: 'Блог', icon: BookOpen },
   { href: '/admin/analytics', label: 'Аналитика', icon: BarChart3 },
+  { href: '/admin/setup', label: 'Настройка', icon: Settings },
 ]
 
 const advertiserNav = [

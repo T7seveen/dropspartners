@@ -59,11 +59,11 @@ export default function ReferralsPage() {
               : '—',
             code: l.code,
             url: `${origin}/ref/${l.code}`,
-            clicks: l.total_clicks ?? 0,
-            conversions: l.total_conversions ?? 0,
-            earnings: l.total_earnings ?? 0,
-            cr: l.total_clicks > 0
-              ? Math.round((l.total_conversions / l.total_clicks) * 1000) / 10
+            clicks: l.clicks ?? 0,
+            conversions: l.conversions ?? 0,
+            earnings: l.earnings ?? 0,
+            cr: (l.clicks ?? 0) > 0
+              ? Math.round(((l.conversions ?? 0) / l.clicks) * 1000) / 10
               : 0,
             created: l.created_at,
           })))

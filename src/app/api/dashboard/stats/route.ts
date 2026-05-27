@@ -6,6 +6,7 @@ const MOCK = {
   clicks: 0, conversions: 0, cr: 0,
   earnings: 0, pending: 0, balance: 0,
   clicksTrend: 0, convTrend: 0, earnTrend: 0,
+  dev_mode: true,
   chartData: [
     { day: 'Пн', clicks: 0, conversions: 0, earnings: 0 },
     { day: 'Вт', clicks: 0, conversions: 0, earnings: 0 },
@@ -15,8 +16,7 @@ const MOCK = {
     { day: 'Сб', clicks: 0, conversions: 0, earnings: 0 },
     { day: 'Вс', clicks: 0, conversions: 0, earnings: 0 },
   ],
-  recentEvents: [
-  ],
+  recentEvents: [],
 }
 
 /** GET /api/dashboard/stats — partner 7-day stats */
@@ -37,11 +37,11 @@ export async function GET(req: NextRequest) {
       await Promise.all([
         supabase.from('profiles').select('balance, total_earned, total_paid').eq('id', user.id).single(),
         supabase.from('clicks').select('created_at').eq('partner_id', user.id).gte('created_at', sevenDaysAgo),
-        supabase.from('conversions').select('created_at, payout_amount, status').eq('partner_id', user.id).gte('created_at', sevenDaysAgo),
-        supabase.from('conversions').select('payout_amount').eq('partner_id', user.id).eq('status', 'pending'),
+        supabase.from('conversions').select('created_at, amount, status').eq('partner_id', user.id).gte('created_at', sevenDaysAgo),
+        supabase.from('conversions').select('amount').eq('partner_id', user.id).eq('status', 'pending'),
         supabase.from('clicks').select('id', { count: 'exact', head: true }).eq('partner_id', user.id).gte('created_at', fourteenDaysAgo).lt('created_at', sevenDaysAgo),
-        supabase.from('conversions').select('payout_amount').eq('partner_id', user.id).gte('created_at', fourteenDaysAgo).lt('created_at', sevenDaysAgo).neq('status', 'rejected'),
-        supabase.from('conversions').select('id, payout_amount, status, created_at, offers(title)').eq('partner_id', user.id).order('created_at', { ascending: false }).limit(5),
+        supabase.from('conversions').select('amount').eq('partner_id', user.id).gte('created_at', fourteenDaysAgo).lt('created_at', sevenDaysAgo).neq('status', 'rejected'),
+        supabase.from('conversions').select('id, amount, status, created_at, offers(title)').eq('partner_id', user.id).order('created_at', { ascending: false }).limit(5),
       ])
 
     const profile = profileRes.data
@@ -49,12 +49,12 @@ export async function GET(req: NextRequest) {
     const convs7d = (convs7Res.data ?? []).filter((c: any) => c.status !== 'rejected')
     const holdConvs = holdRes.data ?? []
 
-    const earnings7d = convs7d.reduce((s: number, c: any) => s + (c.payout_amount ?? 0), 0)
-    const pending = holdConvs.reduce((s: number, c: any) => s + (c.payout_amount ?? 0), 0)
+    const earnings7d = convs7d.reduce((s: number, c: any) => s + (c.amount ?? 0), 0)
+    const pending = holdConvs.reduce((s: number, c: any) => s + (c.amount ?? 0), 0)
 
     const prevClickCount = prevClicksRes.count ?? 0
     const prevConvs = prevConvsRes.data ?? []
-    const prevEarnings = prevConvs.reduce((s: number, c: any) => s + (c.payout_amount ?? 0), 0)
+    const prevEarnings = prevConvs.reduce((s: number, c: any) => s + (c.amount ?? 0), 0)
 
     const currClicks = clicks7d.length
     const currConvs = convs7d.length
@@ -73,14 +73,14 @@ export async function GET(req: NextRequest) {
       const dayLabel = DAY_LABELS[d.getDay() === 0 ? 6 : d.getDay() - 1]
       const dc = clicks7d.filter((c: any) => c.created_at?.startsWith(dateStr)).length
       const dConvs = convs7d.filter((c: any) => c.created_at?.startsWith(dateStr))
-      const de = dConvs.reduce((s: number, c: any) => s + (c.payout_amount ?? 0), 0)
+      const de = dConvs.reduce((s: number, c: any) => s + (c.amount ?? 0), 0)
       return { day: dayLabel, clicks: dc, conversions: dConvs.length, earnings: de }
     })
 
     const recentEvents = (recentRes.data ?? []).map((c: any) => ({
       id: c.id,
       type: 'conversion',
-      amount: c.payout_amount,
+      amount: c.amount,
       status: c.status,
       offer: (c.offers as any)?.title ?? 'Оффер',
       created_at: c.created_at,

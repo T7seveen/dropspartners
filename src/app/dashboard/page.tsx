@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { DashboardShell } from '@/components/layout/DashboardShell'
 import { StatCard } from '@/components/ui/Card'
-import { TrendingUp, MousePointerClick, Target, Wallet, Clock, Link2, Loader2 } from 'lucide-react'
+import { TrendingUp, MousePointerClick, Target, Wallet, Clock, Link2, Loader2, AlertTriangle } from 'lucide-react'
 import { formatMoney } from '@/lib/utils'
 import { RecentActivity, QuickChart, TopOffers, type RecentEvent } from './RecentActivity'
 
@@ -16,6 +16,7 @@ interface DashStats {
   clicksTrend: number
   convTrend: number
   earnTrend: number
+  dev_mode?: boolean
   chartData: { day: string; clicks: number; conversions: number; earnings: number }[]
   recentEvents: RecentEvent[]
 }
@@ -52,6 +53,20 @@ export default function DashboardPage() {
 
   return (
     <DashboardShell title="Дашборд" balance={s.balance}>
+      {/* Demo mode banner */}
+      {s.dev_mode && (
+        <div className="mb-5 flex items-start gap-3 p-4 bg-amber-950/30 border border-amber-500/25 rounded-2xl">
+          <AlertTriangle size={18} className="text-amber-400 shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-semibold text-amber-400 mb-0.5">Демо-режим — база данных не подключена</div>
+            <div className="text-xs text-amber-400/70">Данные не сохраняются. Подключите Supabase, чтобы регистрация, статистика и выплаты начали работать.</div>
+          </div>
+          <a href="/admin/setup" className="shrink-0 text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 font-semibold px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap">
+            Настроить →
+          </a>
+        </div>
+      )}
+
       {/* Welcome */}
       <div className="mb-6">
         <h2 className="text-xl font-bold text-[#F0F4FF]">Добро пожаловать 👋</h2>
