@@ -18,11 +18,11 @@ interface ReferralLink {
   created: string
 }
 
-const MOCK_LINKS: ReferralLink[] = [
-  { id: '1', offer: 'Drops — Система', type: 'CPA', payout: '15 000 ₽', code: 'dp_a1b2c3', url: 'https://partners.drops.agency/ref/dp_a1b2c3', clicks: 312, conversions: 13, earnings: 195000, cr: 4.2, created: '2024-01-10' },
-  { id: '2', offer: 'Bybit RevShare', type: 'RevShare', payout: '30%', code: 'dp_x4y5z6', url: 'https://partners.drops.agency/ref/dp_x4y5z6', clicks: 248, conversions: 7, earnings: 58400, cr: 2.8, created: '2024-01-08' },
-  { id: '3', offer: 'NordVPN', type: 'CPS', payout: '1 200 ₽', code: 'dp_m7n8o9', url: 'https://partners.drops.agency/ref/dp_m7n8o9', clicks: 187, conversions: 6, earnings: 7200, cr: 3.2, created: '2024-01-15' },
-]
+// const MOCK_LINKS: ReferralLink[] = [
+//   { id: '1', offer: 'Drops — Система', type: 'CPA', payout: '15 000 ₽', code: 'dp_a1b2c3', url: 'https://partners.drops.agency/ref/dp_a1b2c3', clicks: 312, conversions: 13, earnings: 195000, cr: 4.2, created: '2024-01-10' },
+//   { id: '2', offer: 'Bybit RevShare', type: 'RevShare', payout: '30%', code: 'dp_x4y5z6', url: 'https://partners.drops.agency/ref/dp_x4y5z6', clicks: 248, conversions: 7, earnings: 58400, cr: 2.8, created: '2024-01-08' },
+//   { id: '3', offer: 'NordVPN', type: 'CPS', payout: '1 200 ₽', code: 'dp_m7n8o9', url: 'https://partners.drops.agency/ref/dp_m7n8o9', clicks: 187, conversions: 6, earnings: 7200, cr: 3.2, created: '2024-01-15' },
+// ]
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false)
@@ -68,10 +68,10 @@ export default function ReferralsPage() {
             created: l.created_at,
           })))
         } else {
-          setLinks(MOCK_LINKS)
+          setLinks([])
         }
       })
-      .catch(() => setLinks(MOCK_LINKS))
+      .catch(() => setLinks([]))
       .finally(() => setLoading(false))
   }, [])
 

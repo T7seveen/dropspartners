@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 import {
   LayoutDashboard, Package, BarChart3, Link2, Wallet,
   BookOpen, User, Settings, LogOut, Shield, ChevronRight,
-  Zap, Users, ShoppingBag, Newspaper
+  Zap, Users, ShoppingBag, Newspaper, Boxes
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
@@ -13,6 +13,7 @@ const partnerNav = [
   { href: '/dashboard', label: 'Дашборд', icon: LayoutDashboard },
   { href: '/dashboard/offers', label: 'Офферы', icon: Package },
   { href: '/dashboard/dropshipping', label: 'Дропшиппинг', icon: ShoppingBag },
+  { href: '/products', label: 'Наши продукты', icon: Boxes },
   { href: '/dashboard/referrals', label: 'Мои ссылки', icon: Link2 },
   { href: '/dashboard/stats', label: 'Статистика', icon: BarChart3 },
   { href: '/dashboard/wallet', label: 'Кошелёк', icon: Wallet },

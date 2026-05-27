@@ -4,38 +4,13 @@ import { DashboardShell } from '@/components/layout/DashboardShell'
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell, BarChart, Bar, Legend } from 'recharts'
 import { formatMoney } from '@/lib/utils'
 
-const daily = [
-  { date:'19.01', clicks:142, conversions:4, earnings:5200 },
-  { date:'20.01', clicks:198, conversions:6, earnings:7800 },
-  { date:'21.01', clicks:167, conversions:5, earnings:6500 },
-  { date:'22.01', clicks:221, conversions:8, earnings:10400 },
-  { date:'23.01', clicks:189, conversions:5, earnings:6500 },
-  { date:'24.01', clicks:156, conversions:4, earnings:5200 },
-  { date:'25.01', clicks:174, conversions:6, earnings:6000 },
-]
+const daily: { date: string; clicks: number; conversions: number; earnings: number }[] = []
 
-const deviceData = [
-  { name:'Mobile', value:58, color:'#2979FF' },
-  { name:'Desktop', value:34, color:'#00D4FF' },
-  { name:'Tablet', value:8, color:'#FFB930' },
-]
+const deviceData: { name: string; value: number; color: string }[] = []
 
-const geoData = [
-  { country:'🇷🇺 Россия', clicks:734, conv:28, pct:58 },
-  { country:'🇺🇦 Украина', clicks:198, conv:7, pct:16 },
-  { country:'🇰🇿 Казахстан', clicks:142, conv:5, pct:11 },
-  { country:'🇧🇾 Беларусь', clicks:98, conv:3, pct:8 },
-  { country:'🌍 Другие', clicks:75, conv:2, pct:6 },
-]
+const geoData: { country: string; clicks: number; conv: number; pct: number }[] = []
 
-const sourceData = [
-  { name:'Instagram', clicks:412, conv:16 },
-  { name:'Telegram', clicks:289, conv:11 },
-  { name:'TikTok', clicks:198, conv:7 },
-  { name:'YouTube', clicks:143, conv:5 },
-  { name:'Прямые', clicks:87, conv:3 },
-  { name:'Прочие', clicks:118, conv:4 },
-]
+const sourceData: { name: string; clicks: number; conv: number }[] = []
 
 const periods = ['7 дней','30 дней','3 месяца','Всего']
 
@@ -67,11 +42,11 @@ export default function StatsPage() {
       {/* Summary */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-5">
         {[
-          { label:'Клики', value:'1 247' },
-          { label:'Уники', value:'892' },
-          { label:'Конверсии', value:'38' },
-          { label:'CR', value:'4.26%' },
-          { label:'Заработано', value:'47 600 ₽' },
+          { label:'Клики', value:'0' },
+          { label:'Уники', value:'0' },
+          { label:'Конверсии', value:'0' },
+          { label:'CR', value:'0%' },
+          { label:'Заработано', value:'0 ₽' },
         ].map(s=>(
           <div key={s.label} className="bg-[#0D1B2E] border border-[#1A2744] rounded-xl p-3 text-center">
             <div className="text-xs text-[#8FA8C8] mb-1">{s.label}</div>
