@@ -2,8 +2,12 @@
 import { useState } from 'react'
 import { DashboardShell } from '@/components/layout/DashboardShell'
 import { OfferCard } from '@/components/offers/OfferCard'
-import { Search, SlidersHorizontal, Flame, Star } from 'lucide-react'
+import {
+  Search, Flame, Star, X, Copy, CheckCircle,
+  ExternalLink, Link2, Loader2,
+} from 'lucide-react'
 import { Offer } from '@/types'
+import { getPayoutLabel } from '@/lib/utils'
 
 const mockOffers: Offer[] = [
   {
@@ -94,30 +98,168 @@ const categories = [
   { id: 4, slug: 'education', name: 'Обучение', icon: '🎓' },
   { id: 5, slug: 'marketing', name: 'Маркетинг', icon: '📈' },
 ]
-
 const offerTypes = ['Все', 'CPA', 'CPL', 'CPS', 'RevShare', 'Дропшиппинг']
+
+// ── Get Link Modal ──────────────────────────────────────────────────
+
+function GetLinkModal({ offer, onClose }: { offer: Offer; onClose: () => void }) {
+  const [loading, setLoading] = useState(false)
+  const [linkUrl, setLinkUrl] = useState('')
+  const [error, setError] = useState('')
+  const [copied, setCopied] = useState(false)
+
+  const generateLink = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch(`/api/offers/${offer.id}/take`, { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error ?? 'Ошибка создания ссылки')
+        return
+      }
+      setLinkUrl(data.url)
+    } catch {
+      setError('Ошибка соединения')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const copy = () => {
+    navigator.clipboard.writeText(linkUrl)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+      <div className="w-full max-w-md bg-[#0D1B2E] border border-[#1A2744] rounded-2xl p-6 shadow-2xl">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h3 className="font-bold text-[#F0F4FF] text-base">Получить ссылку</h3>
+            <p className="text-[#8FA8C8] text-sm mt-0.5">{offer.title}</p>
+          </div>
+          <button onClick={onClose} className="text-[#8FA8C8] hover:text-white transition-colors">
+            <X size={20}/>
+          </button>
+        </div>
+
+        {/* Offer info */}
+        <div className="bg-[#1A2744] rounded-xl p-3 mb-5 flex justify-between items-center">
+          <div>
+            <div className="text-[10px] text-[#8FA8C8] uppercase tracking-wide mb-0.5">Выплата</div>
+            <div className="text-[#2979FF] font-bold">{getPayoutLabel(offer)}</div>
+          </div>
+          <div>
+            <div className="text-[10px] text-[#8FA8C8] uppercase tracking-wide mb-0.5">Холд</div>
+            <div className="text-[#F0F4FF] font-semibold text-sm">{offer.hold_days} дн.</div>
+          </div>
+          <div>
+            <div className="text-[10px] text-[#8FA8C8] uppercase tracking-wide mb-0.5">Куки</div>
+            <div className="text-[#F0F4FF] font-semibold text-sm">{offer.cookie_days} дн.</div>
+          </div>
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-950/40 border border-red-500/30 rounded-xl text-red-400 text-sm">
+            {error}
+          </div>
+        )}
+
+        {/* Link result */}
+        {linkUrl ? (
+          <div className="space-y-3">
+            <div className="bg-[#1A2744]/70 rounded-xl p-3">
+              <div className="text-[10px] text-[#8FA8C8] mb-1.5 uppercase tracking-wide flex items-center gap-1">
+                <Link2 size={10}/> Ваша реферальная ссылка
+              </div>
+              <code className="text-xs text-[#C8DCFF] break-all font-mono">{linkUrl}</code>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={copy}
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                  copied
+                    ? 'bg-green-600 text-white'
+                    : 'bg-[#2979FF] hover:bg-[#1565C0] text-white'
+                }`}
+              >
+                {copied ? <CheckCircle size={16}/> : <Copy size={16}/>}
+                {copied ? 'Скопировано!' : 'Скопировать'}
+              </button>
+              <a
+                href={linkUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="px-4 flex items-center gap-1.5 bg-[#1A2744] hover:bg-[#243560] rounded-xl text-sm text-[#8FA8C8] hover:text-white transition-all"
+              >
+                <ExternalLink size={14}/>
+              </a>
+            </div>
+            <a
+              href="/dashboard/referrals"
+              className="block text-center text-xs text-[#2979FF] hover:underline"
+            >
+              Перейти к моим ссылкам →
+            </a>
+          </div>
+        ) : (
+          <button
+            onClick={generateLink}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2 py-3 bg-[#2979FF] hover:bg-[#1565C0] disabled:opacity-60 text-white font-semibold rounded-xl transition-all"
+          >
+            {loading ? <Loader2 size={16} className="animate-spin"/> : <Link2 size={16}/>}
+            {loading ? 'Создаём ссылку...' : 'Создать реферальную ссылку'}
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ── Page ────────────────────────────────────────────────────────────
 
 export default function OffersPage() {
   const [search, setSearch] = useState('')
   const [catFilter, setCatFilter] = useState(0)
   const [typeFilter, setTypeFilter] = useState('Все')
   const [sort, setSort] = useState<'top' | 'new' | 'payout' | 'cr'>('top')
+  const [activeOffer, setActiveOffer] = useState<Offer | null>(null)
 
-  const filtered = mockOffers.filter(o => {
-    const matchSearch = !search || o.title.toLowerCase().includes(search.toLowerCase()) || (o.description ?? '').toLowerCase().includes(search.toLowerCase())
-    const matchCat = catFilter === 0 || o.category_id === catFilter
-    const typeMap: Record<string, string> = { 'CPA': 'cpa', 'CPL': 'cpl', 'CPS': 'cps', 'RevShare': 'revshare', 'Дропшиппинг': 'dropship' }
-    const matchType = typeFilter === 'Все' || o.type === typeMap[typeFilter]
-    return matchSearch && matchCat && matchType
-  })
+  const typeMap: Record<string, string> = {
+    'CPA': 'cpa', 'CPL': 'cpl', 'CPS': 'cps', 'RevShare': 'revshare', 'Дропшиппинг': 'dropship',
+  }
+
+  const filtered = mockOffers
+    .filter(o => {
+      const matchSearch = !search || o.title.toLowerCase().includes(search.toLowerCase()) || (o.description ?? '').toLowerCase().includes(search.toLowerCase())
+      const matchCat = catFilter === 0 || o.category_id === catFilter
+      const matchType = typeFilter === 'Все' || o.type === typeMap[typeFilter]
+      return matchSearch && matchCat && matchType
+    })
+    .sort((a, b) => {
+      if (sort === 'payout') return (b.payout_amount || b.payout_percent) - (a.payout_amount || a.payout_percent)
+      if (sort === 'cr') return b.cr_percent - a.cr_percent
+      if (sort === 'new') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      // top: is_top first, then clicks
+      if (a.is_top !== b.is_top) return (b.is_top ? 1 : 0) - (a.is_top ? 1 : 0)
+      return b.clicks_count - a.clicks_count
+    })
 
   return (
     <DashboardShell title="Каталог офферов">
+      {activeOffer && (
+        <GetLinkModal offer={activeOffer} onClose={() => setActiveOffer(null)} />
+      )}
+
       {/* Filters */}
       <div className="mb-5 space-y-3">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex items-center gap-2 bg-[#0D1B2E] border border-[#1A2744] rounded-xl px-3 py-2 flex-1">
-            <Search size={16} className="text-[#8FA8C8] shrink-0" />
+            <Search size={16} className="text-[#8FA8C8] shrink-0"/>
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
@@ -172,16 +314,16 @@ export default function OffersPage() {
         </div>
       </div>
 
-      {/* Featured top */}
+      {/* Hot offers */}
       {catFilter === 0 && !search && (
         <div className="mb-5">
           <div className="flex items-center gap-2 mb-3">
-            <Flame size={16} className="text-[#FFB930]" />
+            <Flame size={16} className="text-[#FFB930]"/>
             <h3 className="text-sm font-semibold text-[#F0F4FF]">Горячие офферы</h3>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {mockOffers.filter(o => o.is_top).map(o => (
-              <OfferCard key={o.id} offer={o} onGetLink={() => {}} />
+              <OfferCard key={o.id} offer={o} onGetLink={setActiveOffer}/>
             ))}
           </div>
         </div>
@@ -189,15 +331,16 @@ export default function OffersPage() {
 
       {/* All offers */}
       <div className="flex items-center gap-2 mb-3">
-        <Star size={16} className="text-[#8FA8C8]" />
+        <Star size={16} className="text-[#8FA8C8]"/>
         <h3 className="text-sm font-semibold text-[#F0F4FF]">
           {catFilter === 0 && !search ? 'Все офферы' : `Результаты (${filtered.length})`}
         </h3>
       </div>
+
       {filtered.length > 0 ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {filtered.map(o => (
-            <OfferCard key={o.id} offer={o} onGetLink={() => {}} />
+            <OfferCard key={o.id} offer={o} onGetLink={setActiveOffer}/>
           ))}
         </div>
       ) : (

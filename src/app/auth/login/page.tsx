@@ -1,24 +1,46 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
-import { Eye, EyeOff, ArrowRight } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Eye, EyeOff, ArrowRight, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
+import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [show, setShow] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
     setLoading(true)
-    // const supabase = createClient()
-    // const { error } = await supabase.auth.signInWithPassword({ email, password })
-    // if (!error) router.push('/dashboard')
-    await new Promise(r => setTimeout(r, 1000))
-    setLoading(false)
-    window.location.href = '/dashboard'
+
+    try {
+      const supabase = createClient()
+      const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
+
+      if (authError) {
+        if (authError.message.includes('Invalid login credentials')) {
+          setError('Неверный email или пароль')
+        } else if (authError.message.includes('Email not confirmed')) {
+          setError('Подтвердите email перед входом')
+        } else {
+          setError(authError.message)
+        }
+        return
+      }
+
+      router.push('/dashboard')
+      router.refresh()
+    } catch {
+      setError('Ошибка соединения. Попробуйте позже.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -42,14 +64,26 @@ export default function LoginPage() {
         </div>
 
         <form onSubmit={handleLogin} className="bg-[#0D1B2E] border border-[#1A2744] rounded-2xl p-6 space-y-4">
+          {error && (
+            <div className="flex items-center gap-2 p-3 bg-red-950/40 border border-red-500/30 rounded-xl text-red-400 text-sm">
+              <AlertCircle size={16} className="shrink-0" />
+              {error}
+            </div>
+          )}
+
           <div>
             <label className="text-xs text-[#8FA8C8] mb-1.5 block font-medium">Email</label>
             <input
-              type="email" value={email} onChange={e => setEmail(e.target.value)} required
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+              autoComplete="email"
               placeholder="you@email.com"
               className="w-full bg-[#1A2744] border border-[#2979FF]/20 rounded-xl px-3 py-2.5 text-sm text-[#F0F4FF] placeholder-[#8FA8C8] outline-none focus:border-[#2979FF] transition-colors"
             />
           </div>
+
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-xs text-[#8FA8C8] font-medium">Пароль</label>
@@ -57,15 +91,24 @@ export default function LoginPage() {
             </div>
             <div className="relative">
               <input
-                type={show ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} required
+                type={show ? 'text' : 'password'}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
                 placeholder="••••••••"
                 className="w-full bg-[#1A2744] border border-[#2979FF]/20 rounded-xl px-3 py-2.5 pr-10 text-sm text-[#F0F4FF] placeholder-[#8FA8C8] outline-none focus:border-[#2979FF] transition-colors"
               />
-              <button type="button" onClick={() => setShow(!show)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8FA8C8] hover:text-white">
+              <button
+                type="button"
+                onClick={() => setShow(!show)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8FA8C8] hover:text-white"
+              >
                 {show ? <EyeOff size={16}/> : <Eye size={16}/>}
               </button>
             </div>
           </div>
+
           <Button type="submit" loading={loading} className="w-full">
             Войти <ArrowRight size={16}/>
           </Button>

@@ -1,19 +1,20 @@
 'use client'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import {
   LayoutDashboard, Package, BarChart3, Link2, Wallet,
   BookOpen, User, Settings, LogOut, Shield, ChevronRight,
   Zap, Users
 } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 
 const partnerNav = [
   { href: '/dashboard', label: 'Дашборд', icon: LayoutDashboard },
   { href: '/dashboard/offers', label: 'Офферы', icon: Package },
   { href: '/dashboard/referrals', label: 'Мои ссылки', icon: Link2 },
   { href: '/dashboard/stats', label: 'Статистика', icon: BarChart3 },
-  { href: '/dashboard/payouts', label: 'Выплаты', icon: Wallet },
+  { href: '/dashboard/wallet', label: 'Кошелёк', icon: Wallet },
   { href: '/dashboard/learn', label: 'Обучение', icon: BookOpen },
   { href: '/dashboard/profile', label: 'Профиль', icon: User },
 ]
@@ -34,6 +35,16 @@ interface SidebarProps {
 
 export function Sidebar({ role = 'partner', onClose }: SidebarProps) {
   const pathname = usePathname()
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    try {
+      const supabase = createClient()
+      await supabase.auth.signOut()
+    } catch {}
+    router.push('/auth/login')
+    router.refresh()
+  }
   const nav = role === 'admin' ? adminNav : partnerNav
 
   return (
@@ -96,7 +107,10 @@ export function Sidebar({ role = 'partner', onClose }: SidebarProps) {
           <Settings size={14} />
           <span>Настройки</span>
         </Link>
-        <button className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs text-red-400 hover:bg-red-950/30 transition-all">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs text-red-400 hover:bg-red-950/30 transition-all"
+        >
           <LogOut size={14} />
           <span>Выйти</span>
         </button>

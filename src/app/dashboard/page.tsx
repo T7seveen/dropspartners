@@ -90,7 +90,7 @@ export default function DashboardPage() {
           <div className="grid grid-cols-2 gap-2">
             {[
               { icon: Link2, label: 'Создать ссылку', href: '/dashboard/offers' },
-              { icon: Wallet, label: 'Запросить выплату', href: '/dashboard/payouts' },
+              { icon: Wallet, label: 'Запросить выплату', href: '/dashboard/wallet' },
               { icon: TrendingUp, label: 'Статистика', href: '/dashboard/stats' },
               { icon: Target, label: 'Каталог офферов', href: '/dashboard/offers' },
             ].map(({ icon: Icon, label, href }) => (
@@ -105,8 +105,8 @@ export default function DashboardPage() {
           <div className="mt-4 p-4 rounded-xl bg-gradient-to-br from-[#2979FF]/15 to-[#1A2744] border border-[#2979FF]/25">
             <div className="text-xs text-[#8FA8C8] mb-1">Доступный баланс</div>
             <div className="text-2xl font-bold text-[#2979FF]">{formatMoney(stats.balance)}</div>
-            <div className="text-xs text-[#8FA8C8] mt-1">Минимум вывода: 2 000 ₽</div>
-            <a href="/dashboard/payouts" className="mt-3 inline-flex items-center gap-1.5 bg-[#2979FF] hover:bg-[#1565C0] text-white text-xs font-semibold px-4 py-2 rounded-xl transition-colors">
+            <div className="text-xs text-[#8FA8C8] mt-1">Минимум вывода: 1 000 ₽</div>
+            <a href="/dashboard/wallet" className="mt-3 inline-flex items-center gap-1.5 bg-[#2979FF] hover:bg-[#1565C0] text-white text-xs font-semibold px-4 py-2 rounded-xl transition-colors">
               Вывести
             </a>
           </div>

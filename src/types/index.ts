@@ -154,3 +154,65 @@ export interface ChartPoint {
   conversions: number
   earnings: number
 }
+
+export interface TelegramLink {
+  id: string
+  user_id: string
+  token: string
+  used: boolean
+  expires_at: string
+  created_at: string
+}
+
+export interface OfferTool {
+  id: string
+  offer_id: string
+  type: 'banner' | 'text' | 'script' | 'landing' | 'video'
+  title: string
+  url: string | null
+  content: string | null
+  size: string | null
+  created_at: string
+}
+
+export interface LearnModule {
+  id: number
+  title: string
+  description: string | null
+  cover_url: string | null
+  sort_order: number
+  is_free: boolean
+  created_at: string
+  lessons?: LearnLesson[]
+}
+
+export interface LearnLesson {
+  id: number
+  module_id: number
+  title: string
+  content: string | null
+  video_url: string | null
+  duration_min: number
+  sort_order: number
+  created_at: string
+}
+
+export interface Notification {
+  id: string
+  user_id: string
+  type: 'conversion' | 'payout' | 'news' | 'system'
+  title: string
+  body: string | null
+  is_read: boolean
+  link: string | null
+  created_at: string
+}
+
+export interface WalletData {
+  balance: number
+  pending_hold: number
+  total_earned: number
+  total_paid: number
+  payouts: Payout[]
+  dev_mode?: boolean
+}
